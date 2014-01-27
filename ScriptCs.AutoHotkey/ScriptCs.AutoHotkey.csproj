@@ -38,8 +38,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoHotkey.cs" />
+    <Compile Include="Keyboard\HARDWAREINPUT.cs" />
+    <Compile Include="Keyboard\INPUT.cs" />
+    <Compile Include="Keyboard\InputSimulator.cs" />
+    <Compile Include="Keyboard\InputType.cs" />
+    <Compile Include="Keyboard\KEYBDINPUT.cs" />
     <Compile Include="Keyboard\Keyboard.cs" />
+    <Compile Include="Keyboard\KeyboardFlag.cs" />
     <Compile Include="Keyboard\KeyboardHook.cs" />
+    <Compile Include="Keyboard\MouseFlag.cs" />
+    <Compile Include="Keyboard\MOUSEINPUT.cs" />
+    <Compile Include="Keyboard\MOUSEKEYBDHARDWAREINPUT.cs" />
+    <Compile Include="Keyboard\XButton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

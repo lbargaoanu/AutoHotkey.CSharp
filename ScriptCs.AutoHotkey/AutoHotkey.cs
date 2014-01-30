@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ScriptCs.Contracts;
 
 namespace ScriptCs.AutoHotkey
 {
@@ -9,7 +10,7 @@ namespace ScriptCs.AutoHotkey
     {
     }
 
-    public sealed class AutoHotkey
+    public sealed class AutoHotkey : IScriptPackContext
     {
         public IKeyboard Keyboard { get; set; }
 

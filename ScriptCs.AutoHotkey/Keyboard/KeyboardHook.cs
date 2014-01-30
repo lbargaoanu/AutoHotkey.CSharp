@@ -18,7 +18,6 @@ namespace ScriptCs.AutoHotkey
         public static uint MOD_ALT = 0x1;
         public static uint MOD_CONTROL = 0x2;
         public static uint MOD_SHIFT = 0x4;
-        public static uint MOD_WIN = 0x8;
 
         /// <summary>
         /// Represents the window that is used internally to get the messages.

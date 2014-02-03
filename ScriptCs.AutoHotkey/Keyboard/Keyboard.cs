@@ -16,7 +16,7 @@ namespace ScriptCs.AutoHotkey
     }
     
     [Export(typeof(IKeyboard))]
-    public class Keyboard : IKeyboard
+    public sealed class Keyboard : IKeyboard
     {
         private KeyboardHook keyboardHook = new KeyboardHook();
         private InputSimulator inputSimulator = new InputSimulator();

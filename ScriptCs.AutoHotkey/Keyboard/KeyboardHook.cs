@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace ScriptCs.AutoHotkey
 {
-    public sealed class KeyboardHook : IDisposable
+    public sealed class KeyboardHook : IDisposable, IMessageFilter
     {
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -16,76 +15,55 @@ namespace ScriptCs.AutoHotkey
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         private const uint Lower16BitsMask = 0xFFFF;
-        public static uint MOD_ALT = 0x1;
-        public static uint MOD_CONTROL = 0x2;
-        public static uint MOD_SHIFT = 0x4;
+        public const uint MOD_ALT = 0x1;
+        public const uint MOD_CONTROL = 0x2;
+        public const uint MOD_SHIFT = 0x4;
+        private const int WM_HOTKEY = 0x0312;
 
-        /// <summary>
-        /// Represents the window that is used internally to get the messages.
-        /// </summary>
-        private class Window : NativeWindow, IDisposable
-        {
-            private static int WM_HOTKEY = 0x0312;
-
-            public event EventHandler<KeyPressedEventArgs> KeyPressed;
-
-            public Window()
-            {
-                this.CreateHandle(new CreateParams());
-            }
-
-            protected override void WndProc(ref Message m)
-            {
-                base.WndProc(ref m);
-                if(m.Msg != WM_HOTKEY || KeyPressed == null)
-                {
-                    return;
-                }
-                var modifiers = TranslateModifiers(m.LParam);
-                var key = modifiers + (((int)m.LParam >> 16) & Lower16BitsMask);
-                KeyPressed(this, new KeyPressedEventArgs((Keys)key));
-            }
-
-            private static uint TranslateModifiers(IntPtr lParam)
-            {
-                var inputModifiers = (uint) lParam & Lower16BitsMask;
-                uint outputModifers = 0;
-                if((inputModifiers & MOD_ALT) == MOD_ALT)
-                {
-                    outputModifers |= (uint) Keys.Alt;
-                }
-                if((inputModifiers & MOD_CONTROL) == MOD_CONTROL)
-                {
-                    outputModifers |= (uint) Keys.Control;
-                }
-                if((inputModifiers & MOD_SHIFT) == MOD_SHIFT)
-                {
-                    outputModifers |= (uint) Keys.Shift;
-                }
-                return outputModifers;
-            }
-
-            public void Dispose()
-            {
-                this.DestroyHandle();
-            }
-        }
-
-        private Window _window = new Window();
         private Dictionary<Keys, Action> _handlers = new Dictionary<Keys, Action>();
         private int _currentId;
-        private IntPtr _handle;
         
         public KeyboardHook()
         {
-            _window.KeyPressed += OnKeyPressed;
-            _handle = _window.Handle;
+            Application.AddMessageFilter(this);
         }
 
-        private void OnKeyPressed(object sender, KeyPressedEventArgs args)
+        public bool PreFilterMessage(ref Message m)
         {
+            Trace.WriteLine(m.ToString());
+            if(m.Msg != WM_HOTKEY)
+            {
+                return false;
+            }            
+            OnKeyPressed(m.LParam);
+            return true;
+        }
+
+        private static uint TranslateModifiers(IntPtr lParam)
+        {
+            var inputModifiers = (uint)lParam & Lower16BitsMask;
+            uint outputModifers = 0;
+            if((inputModifiers & MOD_ALT) == MOD_ALT)
+            {
+                outputModifers |= (uint)Keys.Alt;
+            }
+            if((inputModifiers & MOD_CONTROL) == MOD_CONTROL)
+            {
+                outputModifers |= (uint)Keys.Control;
+            }
+            if((inputModifiers & MOD_SHIFT) == MOD_SHIFT)
+            {
+                outputModifers |= (uint)Keys.Shift;
+            }
+            return outputModifers;
+        }
+
+        private void OnKeyPressed(IntPtr lParam)
+        {
+            var modifiers = TranslateModifiers(lParam);
+            var keys = modifiers + (((int)lParam >> 16) & Lower16BitsMask);
             Action handler;
-            if(_handlers.TryGetValue(args.Keys, out handler))
+            if(_handlers.TryGetValue((Keys) keys, out handler))
             {
                 handler();
             }
@@ -96,7 +74,7 @@ namespace ScriptCs.AutoHotkey
             _handlers.Add(hotkey, handler);
             _currentId = _currentId + 1;
             uint modifiers = TranslateModifiers(hotkey);
-            if(!RegisterHotKey(_handle, _currentId, modifiers, Lower16BitsMask & (uint) hotkey))
+            if(!RegisterHotKey(IntPtr.Zero, _currentId, modifiers, Lower16BitsMask & (uint)hotkey))
             {
                 throw new Win32Exception();
             }
@@ -122,24 +100,14 @@ namespace ScriptCs.AutoHotkey
 
         public void Dispose()
         {
+            Application.RemoveMessageFilter(this);
             for(int index = _currentId; index > 0; index--)
             {
-                if(!UnregisterHotKey(_handle, index))
+                if(!UnregisterHotKey(IntPtr.Zero, index))
                 {
-                    throw new Win32Exception();
+                    Trace.WriteLine(new Win32Exception());
                 }                
             }
-            _window.Dispose();
         }
-    }
-
-    public class KeyPressedEventArgs : EventArgs
-    {
-        public KeyPressedEventArgs(Keys keys)
-        {
-            Keys = keys;
-        }
-
-        public Keys Keys { get; private set; }
     }
 }

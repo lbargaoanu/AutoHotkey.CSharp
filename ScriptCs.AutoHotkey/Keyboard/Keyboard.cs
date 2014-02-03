@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Linq;
 using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
@@ -14,6 +15,7 @@ namespace ScriptCs.AutoHotkey
         void SendModified(Keys modifiers, params Keys[] keys);
     }
     
+    [Export(typeof(IKeyboard))]
     public class Keyboard : IKeyboard
     {
         private KeyboardHook keyboardHook = new KeyboardHook();
@@ -57,6 +59,7 @@ namespace ScriptCs.AutoHotkey
             if(keys.Length == 1)
             {
                 SendModified(keys[0], keys[0] & Keys.KeyCode);
+                return;
             }
             inputSimulator.Keyboard.KeyPress(keys.AsVirtualKeyCodes());
         }

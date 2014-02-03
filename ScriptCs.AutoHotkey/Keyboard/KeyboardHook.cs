@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace ScriptCs.AutoHotkey
 {
     public sealed class KeyboardHook : IDisposable
     {
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         private const uint Lower16BitsMask = 0xFFFF;
@@ -73,10 +74,12 @@ namespace ScriptCs.AutoHotkey
         private Window _window = new Window();
         private Dictionary<Keys, Action> _handlers = new Dictionary<Keys, Action>();
         private int _currentId;
-
+        private IntPtr _handle;
+        
         public KeyboardHook()
         {
             _window.KeyPressed += OnKeyPressed;
+            _handle = _window.Handle;
         }
 
         private void OnKeyPressed(object sender, KeyPressedEventArgs args)
@@ -93,7 +96,7 @@ namespace ScriptCs.AutoHotkey
             _handlers.Add(hotkey, handler);
             _currentId = _currentId + 1;
             uint modifiers = TranslateModifiers(hotkey);
-            if(!RegisterHotKey(_window.Handle, _currentId, modifiers, Lower16BitsMask & (uint) hotkey))
+            if(!RegisterHotKey(_handle, _currentId, modifiers, Lower16BitsMask & (uint) hotkey))
             {
                 throw new Win32Exception();
             }
@@ -121,7 +124,10 @@ namespace ScriptCs.AutoHotkey
         {
             for(int index = _currentId; index > 0; index--)
             {
-                UnregisterHotKey(_window.Handle, index);
+                if(!UnregisterHotKey(_handle, index))
+                {
+                    throw new Win32Exception();
+                }                
             }
             _window.Dispose();
         }

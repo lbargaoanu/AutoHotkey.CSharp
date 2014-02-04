@@ -15,9 +15,9 @@ namespace ScriptCs.AutoHotkey
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         private const uint Lower16BitsMask = 0xFFFF;
-        public const uint MOD_ALT = 0x1;
-        public const uint MOD_CONTROL = 0x2;
-        public const uint MOD_SHIFT = 0x4;
+        private const uint MOD_ALT = 0x1;
+        private const uint MOD_CONTROL = 0x2;
+        private const uint MOD_SHIFT = 0x4;
         private const int WM_HOTKEY = 0x0312;
 
         private Dictionary<Keys, Action> _handlers = new Dictionary<Keys, Action>();
@@ -63,21 +63,26 @@ namespace ScriptCs.AutoHotkey
             var modifiers = TranslateModifiers(lParam);
             var keys = modifiers + (((int)lParam >> 16) & Lower16BitsMask);
             Action handler;
-            if(_handlers.TryGetValue((Keys) keys, out handler))
+            if(!_handlers.TryGetValue((Keys) keys, out handler))
+            {
+                return;
+            }
+            try
             {
                 handler();
+            }
+            catch(Exception ex)
+            {
+                Trace.WriteLine(ex);
             }
         }
 
         public void RegisterHotkey(Keys hotkey, Action handler)
         {
-            _handlers.Add(hotkey, handler);
-            _currentId = _currentId + 1;
             uint modifiers = TranslateModifiers(hotkey);
-            if(!RegisterHotKey(IntPtr.Zero, _currentId, modifiers, Lower16BitsMask & (uint)hotkey))
-            {
-                throw new Win32Exception();
-            }
+            AutoHotkey.CheckResult(RegisterHotKey(IntPtr.Zero, _currentId + 1, modifiers, Lower16BitsMask & (uint)hotkey), "RegisterHotKey");
+            _currentId++;
+            _handlers.Add(hotkey, handler);
         }
 
         private static uint TranslateModifiers(Keys hotkey)
@@ -103,10 +108,7 @@ namespace ScriptCs.AutoHotkey
             Application.RemoveMessageFilter(this);
             for(int index = _currentId; index > 0; index--)
             {
-                if(!UnregisterHotKey(IntPtr.Zero, index))
-                {
-                    Trace.WriteLine(new Win32Exception());
-                }                
+                AutoHotkey.TraceResult(UnregisterHotKey(IntPtr.Zero, index), "UnregisterHotKey");
             }
         }
     }

@@ -46,8 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoHotkey.cs" />
-    <Compile Include="Keyboard\Keyboard.cs" />
-    <Compile Include="Keyboard\KeyboardHook.cs" />
+    <Compile Include="Keyboard.cs" />
+    <Compile Include="KeyboardHook.cs" />
+    <Compile Include="Processes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

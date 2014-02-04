@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using ScriptCs.Contracts;
 
@@ -20,6 +21,9 @@ namespace ScriptCs.AutoHotkey
         [Import(RequiredCreationPolicy = CreationPolicy.NonShared)]
         public IKeyboard Keyboard { get; set; }
 
+        [Import]
+        public IProcesses Processes { get; set; }
+
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool PostThreadMessage(uint threadId, uint msg, UIntPtr wParam, IntPtr lParam);
@@ -27,16 +31,44 @@ namespace ScriptCs.AutoHotkey
         [DllImport("kernel32.dll")]
         static extern uint GetCurrentThreadId();
 
+        public static void CheckResult(IntPtr result, string message)
+        {
+            CheckResult(result != IntPtr.Zero, message);
+        }
+
+        public static void TraceResult(IntPtr result, string message)
+        {
+            TraceResult(result != IntPtr.Zero, message);
+        }
+
+        public static void TraceResult(bool result, string message)
+        {
+            if(result)
+            {
+                return;
+            }
+            Trace.WriteLine(message);
+            Trace.WriteLine(new Win32Exception());
+        }
+
+        public static void CheckResult(bool result, string message)
+        {
+            if(result)
+            {
+                return;
+            }
+            Trace.WriteLine(message);
+            throw new Win32Exception();
+        }
+
         IScriptPackContext IScriptPack.GetContext()
         {
+            Console.TreatControlCAsInput = true;
+            Trace.Listeners.Add(new ConsoleTraceListener());
             var threadId = GetCurrentThreadId();
             AppDomain.CurrentDomain.DomainUnload += delegate
             {
-                var result = PostThreadMessage((uint) threadId, 0, UIntPtr.Zero, IntPtr.Zero);
-                if(!result)
-                {
-                    Trace.WriteLine(new Win32Exception());
-                }
+                TraceResult(PostThreadMessage((uint)threadId, 0, UIntPtr.Zero, IntPtr.Zero), "PostThreadMessage");
             };
             return this;
         }
@@ -44,7 +76,7 @@ namespace ScriptCs.AutoHotkey
         void IScriptPack.Initialize(IScriptPackSession session)
         {
             session.AddReference("System.Windows.Forms");
-            Array.ForEach(new[] { "System.Windows.Forms", "System.Diagnostics" }, session.ImportNamespace);
+            Array.ForEach(new[] { "System.Windows.Forms", "System.Diagnostics", "System.Threading" }, session.ImportNamespace);
         }
 
         void IScriptPack.Terminate()
@@ -65,13 +97,9 @@ namespace ScriptCs.AutoHotkey
 
         public void Run()
         {
-            try
+            using(this)
             {
                 Application.Run();
-            }
-            finally
-            {
-                Dispose();
             }
         }
     }

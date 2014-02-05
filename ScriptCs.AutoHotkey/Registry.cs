@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using WindowsRegistry = Microsoft.Win32.Registry;
 
 namespace ScriptCs.AutoHotkey

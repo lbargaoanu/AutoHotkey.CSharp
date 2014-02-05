@@ -25,6 +25,17 @@ namespace ScriptCs.AutoHotkey
         [Import]
         public IRegistry Registry { get; set; }
 
+        public AutoHotkey()
+        {
+            Console.TreatControlCAsInput = true;
+            Trace.Listeners.Add(new ConsoleTraceListener());
+            var threadId = GetCurrentThreadId();
+            AppDomain.CurrentDomain.DomainUnload += delegate
+            {
+                TraceResult(PostThreadMessage((uint)threadId, 0, UIntPtr.Zero, IntPtr.Zero), "PostThreadMessage");
+            };
+        }
+
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool PostThreadMessage(uint threadId, uint msg, UIntPtr wParam, IntPtr lParam);
@@ -64,13 +75,6 @@ namespace ScriptCs.AutoHotkey
 
         IScriptPackContext IScriptPack.GetContext()
         {
-            Console.TreatControlCAsInput = true;
-            Trace.Listeners.Add(new ConsoleTraceListener());
-            var threadId = GetCurrentThreadId();
-            AppDomain.CurrentDomain.DomainUnload += delegate
-            {
-                TraceResult(PostThreadMessage((uint)threadId, 0, UIntPtr.Zero, IntPtr.Zero), "PostThreadMessage");
-            };
             return this;
         }
 

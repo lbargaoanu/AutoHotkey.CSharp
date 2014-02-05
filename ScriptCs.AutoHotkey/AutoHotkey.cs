@@ -24,6 +24,9 @@ namespace ScriptCs.AutoHotkey
         [Import]
         public IProcesses Processes { get; set; }
 
+        [Import]
+        public IRegistry Registry { get; set; }
+
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool PostThreadMessage(uint threadId, uint msg, UIntPtr wParam, IntPtr lParam);
@@ -76,7 +79,7 @@ namespace ScriptCs.AutoHotkey
         void IScriptPack.Initialize(IScriptPackSession session)
         {
             session.AddReference("System.Windows.Forms");
-            Array.ForEach(new[] { "System.Windows.Forms", "System.Diagnostics", "System.Threading" }, session.ImportNamespace);
+            Array.ForEach(new[] { "System.Windows.Forms", "System.Diagnostics", "System.Threading", "Microsoft.Win32" }, session.ImportNamespace);
         }
 
         void IScriptPack.Terminate()

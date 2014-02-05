@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace ScriptCs.AutoHotkey
 {
-    public interface IProcesses : IService
+    public interface IProcesses : IService, IEnumerable
     {
         void CloseWindows(string name);
         void CloseWindows(params Process[] processes);
@@ -27,6 +29,11 @@ namespace ScriptCs.AutoHotkey
 
         public void Dispose()
         {
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Process.GetProcesses().GetEnumerator();
         }
 
         public void CloseWindows(string name)

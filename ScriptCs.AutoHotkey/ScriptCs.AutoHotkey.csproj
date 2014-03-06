@@ -54,10 +54,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Sample\AutoHotkey.csx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sample\Bin\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)* e:\app\AutoHotkey\Bin\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)* $(ProjectDir)\Sample\Bin\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

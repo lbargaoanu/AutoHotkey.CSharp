@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Composition;
+﻿using System;
+using System.ComponentModel.Composition;
 using WindowsRegistry = Microsoft.Win32.Registry;
 
 namespace ScriptCs.AutoHotkey
@@ -12,7 +13,7 @@ namespace ScriptCs.AutoHotkey
     [Export(typeof(IRegistry))]
     public class Registry : IRegistry
     {
-        public void Dispose()
+        void IDisposable.Dispose()
         {
         }
 

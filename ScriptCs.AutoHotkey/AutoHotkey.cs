@@ -12,7 +12,8 @@ namespace ScriptCs.AutoHotkey
     {
     }
 
-    public sealed class AutoHotkey : IScriptPack, IScriptPackContext, IDisposable
+    [Export(typeof(IScriptHostFactory))]
+    public sealed class AutoHotkey : IScriptPack, IScriptPackContext, IDisposable, IScriptHost, IScriptHostFactory
     {
         private bool disposed;
         
@@ -29,48 +30,11 @@ namespace ScriptCs.AutoHotkey
         {
             Console.TreatControlCAsInput = true;
             Trace.Listeners.Add(new ConsoleTraceListener());
-            var threadId = GetCurrentThreadId();
+            var threadId = Helpers.GetCurrentThreadId();
             AppDomain.CurrentDomain.DomainUnload += delegate
             {
-                TraceResult(PostThreadMessage((uint)threadId, 0, UIntPtr.Zero, IntPtr.Zero), "PostThreadMessage");
+                Helpers.TraceResult(Helpers.PostThreadMessage((uint)threadId, 0, 0, 0), "PostThreadMessage");
             };
-        }
-
-        [return: MarshalAs(UnmanagedType.Bool)]
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern bool PostThreadMessage(uint threadId, uint msg, UIntPtr wParam, IntPtr lParam);
-
-        [DllImport("kernel32.dll")]
-        static extern uint GetCurrentThreadId();
-
-        public static void CheckResult(IntPtr result, string message)
-        {
-            CheckResult(result != IntPtr.Zero, message);
-        }
-
-        public static void TraceResult(IntPtr result, string message)
-        {
-            TraceResult(result != IntPtr.Zero, message);
-        }
-
-        public static void TraceResult(bool result, string message)
-        {
-            if(result)
-            {
-                return;
-            }
-            Trace.WriteLine(message);
-            Trace.WriteLine(new Win32Exception());
-        }
-
-        public static void CheckResult(bool result, string message)
-        {
-            if(result)
-            {
-                return;
-            }
-            Trace.WriteLine(message);
-            throw new Win32Exception();
         }
 
         IScriptPackContext IScriptPack.GetContext()
@@ -86,10 +50,9 @@ namespace ScriptCs.AutoHotkey
 
         void IScriptPack.Terminate()
         {
-            Dispose();
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Trace.WriteLine("DISPOSE");
             if(disposed)
@@ -106,6 +69,11 @@ namespace ScriptCs.AutoHotkey
             {
                 Application.Run();
             }
+        }
+
+        IScriptHost IScriptHostFactory.CreateScriptHost(IScriptPackManager scriptPackManager, string[] scriptArgs)
+        {
+            return this;
         }
     }
 }

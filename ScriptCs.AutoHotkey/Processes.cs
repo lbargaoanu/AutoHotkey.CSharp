@@ -17,16 +17,17 @@ namespace ScriptCs.AutoHotkey
     {
         const uint WM_CLOSE = 0x0010;
 
-        delegate bool EnumThreadDelegate(IntPtr hWnd, IntPtr lParam);
+        delegate bool EnumWindowsDelegate(uint hWnd, IntPtr lParam);
 
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll", SetLastError = true)]
-        static extern bool EnumThreadWindows(int dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
+        static extern bool EnumThreadWindows(int dwThreadId, EnumWindowsDelegate lpfn, IntPtr lParam);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern int SendMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
+        [DllImport("user32", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool EnumChildWindows(uint window, EnumWindowsDelegate callback, IntPtr lParam);
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
         }
 
@@ -47,13 +48,24 @@ namespace ScriptCs.AutoHotkey
             {
                 foreach(ProcessThread thread in process.Threads)
                 {
-                    AutoHotkey.CheckResult(EnumThreadWindows(thread.Id, (hWnd, lParam) =>
+                    Helpers.CheckResult(EnumThreadWindows(thread.Id, (hWnd, lParam) =>
                     {
-                        AutoHotkey.TraceResult(0 == SendMessage(hWnd, WM_CLOSE, 0, 0), "CloseWindow");
+                        EnumChildWindows(hWnd, (hChildWnd, _) => 
+                        {
+                            CloseWindow(hChildWnd);
+                            return true;
+                        }, IntPtr.Zero);
+                        CloseWindow(hWnd);
                         return true;
                     }, IntPtr.Zero), "EnumThreadWindows");
                 }
+                process.WaitForExit();
             }
+        }
+
+        private static void CloseWindow(uint hWnd)
+        {
+            Helpers.TraceResult(0 == Helpers.SendMessage(hWnd, WM_CLOSE, 0, 0), "CloseWindow");
         }
     }
 }

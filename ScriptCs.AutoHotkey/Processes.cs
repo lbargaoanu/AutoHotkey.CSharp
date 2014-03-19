@@ -16,6 +16,7 @@ namespace ScriptCs.AutoHotkey
     public sealed class Processes : IProcesses
     {
         const uint WM_CLOSE = 0x0010;
+        private const short OneSecond = 1000;
 
         delegate bool EnumWindowsDelegate(uint hWnd, IntPtr lParam);
 
@@ -59,7 +60,8 @@ namespace ScriptCs.AutoHotkey
                         return true;
                     }, IntPtr.Zero), "EnumThreadWindows");
                 }
-                process.WaitForExit();
+                process.WaitForExit(OneSecond);
+                process.Kill();
             }
         }
 

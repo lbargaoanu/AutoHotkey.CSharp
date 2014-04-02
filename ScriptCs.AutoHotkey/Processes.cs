@@ -47,22 +47,34 @@ namespace ScriptCs.AutoHotkey
         {
             foreach(var process in processes)
             {
-                foreach(ProcessThread thread in process.Threads)
+                try
                 {
-                    Helpers.CheckResult(EnumThreadWindows(thread.Id, (hWnd, lParam) =>
-                    {
-                        EnumChildWindows(hWnd, (hChildWnd, _) => 
-                        {
-                            CloseWindow(hChildWnd);
-                            return true;
-                        }, IntPtr.Zero);
-                        CloseWindow(hWnd);
-                        return true;
-                    }, IntPtr.Zero), "EnumThreadWindows");
+                    CloseWindows(process);
                 }
-                process.WaitForExit(OneSecond);
-                process.Kill();
+                catch(Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
             }
+        }
+
+        private static void CloseWindows(Process process)
+        {
+            foreach(ProcessThread thread in process.Threads)
+            {
+                Helpers.CheckResult(EnumThreadWindows(thread.Id, (hWnd, lParam) =>
+                {
+                    EnumChildWindows(hWnd, (hChildWnd, _) =>
+                    {
+                        CloseWindow(hChildWnd);
+                        return true;
+                    }, IntPtr.Zero);
+                    CloseWindow(hWnd);
+                    return true;
+                }, IntPtr.Zero), "EnumThreadWindows");
+            }
+            process.WaitForExit(OneSecond);
+            process.Kill();
         }
 
         private static void CloseWindow(uint hWnd)

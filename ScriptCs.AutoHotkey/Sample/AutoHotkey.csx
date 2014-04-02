@@ -17,6 +17,7 @@ Keyboard.RegisterHotkey(Keys.Control|Keys.Alt|Keys.S, _=>
     var result = MessageBox.Show("Sleep?", "Confirmation", MessageBoxButtons.YesNo);
     if(result == DialogResult.Yes)
     {
+        Processes.CloseWindows("firefox");
         Application.SetSuspendState(PowerState.Suspend, force: false, disableWakeEvent: true);
     }
 });

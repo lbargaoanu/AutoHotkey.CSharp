@@ -28,8 +28,8 @@ namespace ScriptCs.AutoHotkey
 
         public AutoHotkey()
         {
-            Console.TreatControlCAsInput = true;
-            Trace.Listeners.Add(new ConsoleTraceListener());
+            //Console.TreatControlCAsInput = true;
+            //Trace.Listeners.Add(new ConsoleTraceListener());
             var threadId = Helpers.GetCurrentThreadId();
             AppDomain.CurrentDomain.DomainUnload += delegate
             {

@@ -9,7 +9,8 @@ Keyboard.RegisterHotkeys(new Hotkeys{
     { Keys.Control|Keys.Alt|Keys.M, _=> RunGoogle("site:allmusic.com") },
     { Keys.Control|Keys.Alt|Keys.V, _=> RunGoogle("site:allmovie.com") },
     { Keys.Control|Keys.Alt|Keys.D, _=> RunUrlWithSelection("dexonline.ro/definitie/{0}") },
-    { Keys.Control|Keys.Alt|Keys.F, _=> RestartFirefox() }
+    { Keys.Control|Keys.Alt|Keys.F, _=> RestartFirefox() },
+    { Keys.Control|Keys.Alt|Keys.W, _=> Process.Start(@"http://www.meteoromania.ro/anm/?lang=ro_ro") },    
 });
 
 Keyboard.RegisterHotkey(Keys.Control|Keys.Alt|Keys.S, _=> 
@@ -39,7 +40,7 @@ void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
 void RestartFirefox()
 {
     Processes.CloseWindows("firefox");
-    Process.Start(GetBrowser());
+    Process.Start(new ProcessStartInfo { FileName = GetBrowser(), WindowStyle = ProcessWindowStyle.Maximized });
 }
 
 void RunGoogle(string filter = null)

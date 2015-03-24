@@ -53,7 +53,8 @@ void RunUrlWithSelection(string uri)
     Keyboard.Send(Keys.Control|Keys.C);
     Thread.Sleep(50);
     var clipboard = Clipboard.GetText();
-    var url = Uri.EscapeUriString(string.Format(uri, clipboard));
+    var url = Uri.EscapeUriString(string.Format(uri, clipboard.Replace("&", " ")));
+    //MessageBox.Show(url);
     Process.Start("http://"+url);
 }
 

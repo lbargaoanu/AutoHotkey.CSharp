@@ -24,13 +24,19 @@ namespace ScriptCs.AutoHotkey
 
         public AutoHotkey()
         {
-            //Console.TreatControlCAsInput = true;
-            //Trace.Listeners.Add(new ConsoleTraceListener());
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             var threadId = Helpers.GetCurrentThreadId();
             AppDomain.CurrentDomain.DomainUnload += delegate
             {
                 Helpers.TraceResult(Helpers.PostThreadMessage((uint)threadId, 0, 0, 0), "PostThreadMessage");
             };
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var message = e.ExceptionObject.ToString();
+            Trace.WriteLine(message);
+            MessageBox.Show(message, "AutoHotkeyError");
         }
 
         [STAThread]

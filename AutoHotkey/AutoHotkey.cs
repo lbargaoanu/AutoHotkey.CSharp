@@ -24,19 +24,17 @@ namespace ScriptCs.AutoHotkey
 
         public AutoHotkey()
         {
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += (_, args) => OnException(args.ExceptionObject);
+            Application.ThreadException += (_, args) => OnException(args.Exception);
             var threadId = Helpers.GetCurrentThreadId();
-            AppDomain.CurrentDomain.DomainUnload += delegate
-            {
-                Helpers.TraceResult(Helpers.PostThreadMessage((uint)threadId, 0, 0, 0), "PostThreadMessage");
-            };
+            AppDomain.CurrentDomain.DomainUnload += (_, __)=> Helpers.TraceResult(Helpers.PostThreadMessage((uint)threadId, 0, 0, 0), "PostThreadMessage");
         }
 
-        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private static void OnException(object ex)
         {
-            var message = e.ExceptionObject.ToString();
+            var message = ex.ToString();
             Trace.WriteLine(message);
-            MessageBox.Show(message, "AutoHotkeyError");
+            MessageBox.Show(message, "AutoHotkey error");
         }
 
         [STAThread]

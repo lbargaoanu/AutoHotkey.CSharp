@@ -49,7 +49,16 @@ namespace ScriptCs.AutoHotkey
 
             CSharpScript.RunAsync(File.ReadAllText(path), options, autoHotkey).Wait();
 
+            RunGC();
+
             autoHotkey.Run();
+        }
+
+        private static void RunGC()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
 
         void IDisposable.Dispose()

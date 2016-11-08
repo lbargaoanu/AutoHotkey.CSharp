@@ -1,7 +1,7 @@
 SystemEvents.PowerModeChanged += OnPowerModeChanged;
 
 Keyboard.RegisterHotkeys(new Hotkeys{
-    { Keys.Control|Keys.Alt|Keys.C, _=> Process.Start(@"D:\Copy paste.txt") },
+    { Keys.Control|Keys.Alt|Keys.C, _=> Process.Start(@"c:\Docs\Copy Paste.txt") },
     { Keys.Control|Keys.N, _=> Process.Start(@"http://") },
     { Keys.Control|Keys.Alt|Keys.I, _=> RunGoogle() },
     { Keys.Control|Keys.Alt|Keys.M, _=> RunGoogle("site:allmusic.com") },
@@ -14,8 +14,8 @@ Keyboard.RegisterHotkeys(new Hotkeys{
 
 Keyboard.RegisterHotkey(Keys.Control|Keys.Alt|Keys.S, _=> 
 {
-    var result = MessageBox.Show("Sleep?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxImage.Question, 
-                                                    MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly);
+    var result = MessageBox.Show("Sleep?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, 
+                                                    MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
     if(result == DialogResult.Yes)
     {
         Processes.CloseWindows("firefox");

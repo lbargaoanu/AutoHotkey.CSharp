@@ -14,7 +14,8 @@ Keyboard.RegisterHotkeys(new Hotkeys{
 
 Keyboard.RegisterHotkey(Keys.Control|Keys.Alt|Keys.S, _=> 
 {
-    var result = MessageBox.Show("Sleep?", "Confirmation", MessageBoxButtons.YesNo);
+    var result = MessageBox.Show("Sleep?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxImage.Question, 
+                                                    MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly);
     if(result == DialogResult.Yes)
     {
         Processes.CloseWindows("firefox");

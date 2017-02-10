@@ -75,11 +75,6 @@ namespace ScriptCs.AutoHotkey
             Trace.WriteLine("PreFilterMessage " + m);
             if(m.Msg != WM_HOTKEY)
             {
-                if(m.Msg == 0)
-                {
-                    Trace.WriteLine("Domain unloading...");
-                    Thread.CurrentThread.Join();
-                }
                 return false;
             }            
             OnHotkey(m.LParam);

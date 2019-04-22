@@ -6,7 +6,7 @@ Keyboard.RegisterHotkeys(new Hotkeys{
     { Keys.Control|Keys.Alt|Keys.I, _=> RunGoogle() },
     { Keys.Control|Keys.Alt|Keys.M, _=> RunGoogle("site:allmusic.com") },
     { Keys.Control|Keys.Alt|Keys.V, _=> RunGoogle("site:www.vivino.com") },
-    { Keys.Control|Keys.Alt|Keys.W, _=> RunGoogle("site:allmovie.com") },
+    { Keys.Control|Keys.Alt|Keys.O, _=> RunGoogle("site:allmovie.com") },
     { Keys.Control|Keys.Alt|Keys.D, _=> RunUrlWithSelection("dexonline.ro/definitie/{0}") },
     { Keys.Control|Keys.Alt|Keys.F, _=> RestartFirefox() },
     { Keys.Control|Keys.Alt|Keys.W, _=> Process.Start(@"http://www.meteoromania.ro/anm/?lang=ro_ro") },

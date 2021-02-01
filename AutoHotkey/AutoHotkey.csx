@@ -1,7 +1,7 @@
 SystemEvents.PowerModeChanged += OnPowerModeChanged;
 
 Keyboard.RegisterHotkeys(new Hotkeys{
-    { Keys.Control|Keys.Alt|Keys.C, _=> Process.Start(@"c:\Docs\Copy Paste.txt") },
+    { Keys.Control|Keys.Alt|Keys.C, _=> Process.Start(@"c:\Copy Paste.txt") },
     { Keys.Control|Keys.N, _=> Process.Start(@"http://") },
     { Keys.Control|Keys.Alt|Keys.I, _=> RunGoogle() },
     { Keys.Control|Keys.Alt|Keys.M, _=> RunGoogle("site:allmusic.com") },
@@ -10,7 +10,7 @@ Keyboard.RegisterHotkeys(new Hotkeys{
     { Keys.Control|Keys.Alt|Keys.D, _=> RunUrlWithSelection("dexonline.ro/definitie/{0}") },
     { Keys.Control|Keys.Alt|Keys.F, _=> RestartFirefox() },
     { Keys.Control|Keys.Alt|Keys.W, _=> Process.Start(@"http://www.meteoromania.ro/anm/?lang=ro_ro") },
-    { Keys.Control|Keys.Alt|Keys.H, _=> Process.Start(@"http://www.accuweather.com/en/ro/bucuresti/287430/hourly-weather-forecast/287430") },    
+    { Keys.Control|Keys.Alt|Keys.H, _=> Process.Start(@"https://www.wunderground.com/hourly/ro/bucharest/IBUCHARE109?cm_ven=localwx_hour") },    
 });
 
 Keyboard.RegisterHotkey(Keys.Control|Keys.Alt|Keys.S, _=> 
